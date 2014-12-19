@@ -19,6 +19,17 @@ def put(name,snippet,filename):
 	logging.debug("Write successful")
 	return name, snippet
 
+def get(name,filename):
+	logging.info("Retrieving snippet for {} from {}".format(name, filename))
+	logging.debug("Open file to read")
+	with open(filename, "rb") as f:
+		reader = csv.reader(f)
+		for first, second in reader:
+			if first == name:
+				print "snippet for {} is {}".format(name, second)
+
+
+
 def make_parser():
 	"""command line parser """
 	logging.info("Constructing parser")
@@ -31,6 +42,11 @@ def make_parser():
 	put_parser.add_argument("name", help="The name of the snippet")
 	put_parser.add_argument("snippet", help="The snippet text")
 	put_parser.add_argument("filename", default="snippets.csv", nargs="?", help="The snippet filename")
+	
+	logging.debug("Constructing get subparser")
+	get_parser = subparsers.add_parser("get", help="Retrieve a snippet")
+	get_parser.add_argument("name", help="The name of the snippet")
+	get_parser.add_argument("filename", default="snippets.csv",nargs="?", help="The snippet filename")
 	
 	return parser
 
@@ -45,6 +61,16 @@ def main():
 	if command == "put":
 		name, snippet = put(**arguments)
 		print "Stored {!r} as {!r}".format(snippet, name)
+	
+	try:
+		if command == "get":
+			name, snippet = get(**arguments)
+			print "retrieved {} from {}".format(snippet, name)
+	except TypeError:
+		print "end of file"
+	except:
+		print "crazy error:", sys.exc_info()[0]
+		raise
 
 if __name__ == "__main__":
 	main()
